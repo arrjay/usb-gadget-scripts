@@ -6,6 +6,6 @@ Build-Depends: debhelper-compat (= 10)
 Maintainer: RJ Bergeron <code@xylate.net>
 
 Package: usb-gadget-scripts
-Version: 0.CODEREV-1
+Version: CODEREV-1
 Architecture: all
 Description: systemd scripts for USB gadget mode

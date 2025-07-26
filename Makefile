@@ -1,5 +1,8 @@
 PREFIX = /usr/local
-NOW = $(shell date +%s)
+DEFREV = 0.$(shell date +%s)
+ifneq ($(CODEREV),)
+CODEREV = $(DEFREV)
+endif
 
 install: $(DESTDIR)$(PREFIX)/lib/systemd/system
 	install -m 0644 src/systemd-system/usb-gadget-base.service $(DESTDIR)$(PREFIX)/lib/systemd/system/usb-gadget-base.service
@@ -13,7 +16,7 @@ debian/changelog: .git
 	EMAIL=code@xylate.net dch --create --package usb-gadget-scripts -v 0.$(NOW) "$(shell git log)"
 
 debian/control: debian/changelog debian/control.in
-	sed -e 's@CODEREV@$(NOW)@g' < debian/control.in > $@
+	sed -e 's@CODEREV@$(CODEREV)@g' < debian/control.in > $@
 
 deb: debian/control
 	dpkg-buildpackage -b
