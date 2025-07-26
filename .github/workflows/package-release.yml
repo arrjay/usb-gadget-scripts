@@ -1,0 +1,35 @@
+name: Build OS package
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  VERSION_TAG: ${{ startsWith(github.event.ref, 'refs/tags/') && github.ref_name || format('0.{0}', github.run_number) }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: apt-get update && apt-get -y install build-essential debhelper devscripts zip
+
+      - name: Build Package
+        run: make deb
+
+      - name: Prepare Release
+        run: mkdir /output && mv ../*.deb output && cd /output && zip packages.zip *.deb
+
+      - name: Attach Package to Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /output/packages.zip
+          asset_name: ${{ github.event.repository.name }}-debian-bookworm.zip
+          tag: ${{ github.ref }}

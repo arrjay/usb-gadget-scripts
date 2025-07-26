@@ -14,3 +14,6 @@ debian/changelog: .git
 
 debian/control: debian/changelog debian/control.in
 	sed -e 's@CODEREV@$(NOW)@g' < debian/control.in > $@
+
+deb: debian/control
+	dpkg-buildpackage -b
