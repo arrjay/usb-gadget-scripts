@@ -15,8 +15,8 @@ jobs:
       image: debian:bookworm
 
     steps:
-      - name: Install Git
-        run: apt-get update && apt-get -y install git
+      - name: Install Git, configure trusted dir
+        run: apt-get update && apt-get -y install git && git config --global --add safe.directory /__w/usb-gadget-scripts/usb-gadget-scripts
 
       - uses: actions/checkout@v4
         with:
