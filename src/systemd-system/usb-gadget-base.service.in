@@ -1,0 +1,17 @@
+[Unit]
+Description=USB Gadget - Base Configuration
+After=sys-kernel-config.mount
+ConditionPathIsDirectory=/sys/kernel/config/usb_gadget
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=PREFIX/libexec/usb-gadget-scripts/composite-base
+
+# remove config
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/configs/c.1/strings/0x409
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/configs/c.1
+# remove strings
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/strings/0x409
+# remove gadget
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g

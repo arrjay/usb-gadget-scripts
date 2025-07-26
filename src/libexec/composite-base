@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+
+set -eu
+
+GADGET_TOPLEVEL='g'
+GADGET_VERSION='0x0001' # this will be a BCD parsed thing...
+GADGET_USBPROTO='0x0200' # USB 2.0
+# language id we're config to configure (English)
+GADGET_LANGUAGES='409'
+# config strings for the language
+GL_409_MANUF='Linux Foundation'
+GL_409_PRODUCT='Gadget'
+# GL_409_SERIAL='01234567' # not setting the language serial should consult /proc/device-tree/serial-number
+GL_409_CONFIGDESC='Just a little guy'
+# but if we don't have that...
+DEFAULT_SERIAL='01234567'
+POWERDRAW=170 # in mW? this is appropriate for a zero w
+
+# load any config replacements
+[[ -e /etc/default/usb-gadget ]] && source /etc/default/usb-gadget
+
+errmsg () {
+  printf '%s\n' "${*}" 1>&2
+}
+
+errdie () {
+  errmsg "${@}"
+  exit 1
+}
+
+gadget_start () {
+  # root gadget directory
+  [[ -d /sys/kernel/config/usb_gadget ]] || errdie "usb_gadget config directory does not exist"
+  # _this_ gadget's directory
+  local gadgetdir="/sys/kernel/config/usb_gadget/${GADGET_TOPLEVEL}"
+  [[ -d "${gadgetdir}" ]] || errdie "gadget (${GADGET_TOPLEVEL}) already exists"
+  mkdir "${gadgetdir}"
+  # wait a moment for the kernel
+  sleep 0.01
+
+  # set up device serial number if we can
+  local devser="${DEFAULT_SERIAL}"
+  [[ -e /prod/device-tree/serial-number ]] && devser="$(cat /proc/device-tree/serial-number)"
+
+  # vendor/product/device/usb version strings
+  printf '%s' '0x1d6b'             > "${gadgetdir}/idVendor"     # Linux Foundation
+  printf '%s' '0x0104'             > "${gadgetdir}/idProduct"    # Multifunction Composite Gadget
+  printf '%s' "${GADGET_VERSION}"  > "${gadgetdir}/bcdDevice"    # Device Version (in BCD...)
+  printf '%s' "${GADGET_USBPROTO}" > "${gadgetdir}/bcdUSB"       # USB Version
+
+  # device class setup (interfaces will use device classes, not us)
+  printf '%s' '0x00'               > "${gadgetdir}/bDeviceClass"
+
+  # product strings
+  for strid in ${GADGET_LANGUAGES} ; do
+    local strdir="${gadgetdir}/strings/0x${strid}"
+    mkdir "${strdir}"
+
+    # manufacturer
+    local lg_mfr="Linux Foundation"
+    [[ "${!GL_${strid}_MANUF}" ]] && lg_mfr="${!GL_${strid}_MANUF}"
+    printf '%s' "${lg_mfr}" > "${strdir}/manufacturer"
+
+    # product
+    local lg_prod="Multifunction Composite Gadget"
+    [[ "${!GL_${strid}_PRODUCT}" ]] && lg_prod="${!GL_${strid}_PRODUCT}"
+    printf '%s' "${lg_prod}" > "${strdir}/product"
+
+    # serial
+    local lg_ser="${devser}"
+    [[ "${!GL_${strid}_SERIAL}" ]] && lg_ser="${!GL_${strid}_SERIAL}"
+    printf '%s' "${lg_ser}" > "${strdir}/serialnumber"
+  done
+
+  # endpoint configuration...
+  mkdir "${gadgetdir}/configs/c.1"
+  for strid in ${GADGET_LANGUAGES} ; do
+    local cstrdir="${gadgetdir}/configs/c.1/strings/0x${strid}"
+    mkdir "${cstrdir}"
+    printf '%s' "${POWERDRAW}" > "${cstrdir}/MaxPower"
+
+    # a string the *describes* the configuration, as far as I can figure out...
+    local lg_descr="A Thing! Running Linux!"
+    [[ "${!GL_${strid}_CONFIGDESC}" ]] && lg_descr="${!GL_${strid}_CONFIGDESC}"
+    printf '%s' "${lg_descr}" > "${cstrdir}/configuration"
+  done
+}
+
+gadget_stop () {
+  # remove endpoint config
+  # remove device strings
+  # remove gadget base
+  :
+}
+
+case "$1" in
+  start)
+    gadget_start
+  ;;
+  stop)
+    gadget_stop
+  ;;
+  *)
+    help
+  ;;
+esac
