@@ -1,0 +1,5 @@
+debian/changelog
+debian/control
+debian/files
+debian/.debhelper
+debian/usb-gadget-scripts*

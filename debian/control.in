@@ -1,0 +1,10 @@
+Section: admin
+Priority: optional
+Standard-Version: 4.5.1
+Source: usb-gadget-scripts
+Maintainer: RJ Bergeron <code@xylate.net>
+
+Package: usb-gadget-scripts
+Version: 0.CODEREV-1
+Architecture: all
+Description: systemd scripts for USB gadget mode
