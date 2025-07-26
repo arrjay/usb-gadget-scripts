@@ -1,0 +1,39 @@
+[Unit]
+Description=USB Gadget - Base Configuration
+After=sys-kernel-config.mount
+ConditionPathIsDirectory=/sys/kernel/config/usb_gadget
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/bin/mkdir /sys/kernel/config/usb_gadget/g
+ExecStart=/usr/bin/sleep 0.01
+# Linux
+ExecStart=/usr/bin/sh -c "printf '%%s' '0x1d6b' > /sys/kernel/config/usb_gadget/g/idVendor"
+# Multifunction Composite
+ExecStart=/usr/bin/sh -c "printf '%%s' '0x0104' > /sys/kernel/config/usb_gadget/g/idProduct"
+# Device Version
+ExecStart=/usr/bin/sh -c "printf '%%s' '0x0001' > /sys/kernel/config/usb_gadget/g/bcdDevice"
+# USB 2.0
+ExecStart=/usr/bin/sh -c "printf '%%s' '0x0200' > /sys/kernel/config/usb_gadget/g/bcdUSB"
+# interfaces will specify class, subclass
+ExecStart=/usr/bin/sh -c "printf '%%s' '0x00'   > /sys/kernel/config/usb_gadget/g/bDeviceClass"
+# config strings in English
+ExecStart=/usr/bin/mkdir /sys/kernel/config/usb_gadget/g/strings/0x409
+ExecStart=/usr/bin/sh -c "printf '%%s' 'Produxi Internetworks'  > /sys/kernel/config/usb_gadget/g/strings/0x409/manufacturer"
+ExecStart=/usr/bin/sh -c "printf '%%s' 'Box'                    > /sys/kernel/config/usb_gadget/g/strings/0x409/product"
+ExecStart=/usr/bin/sh -c "cat /proc/device-tree/serial-number   > /sys/kernel/config/usb_gadget/g/strings/0x409/serialnumber"
+# add endpoint config
+ExecStart=/usr/bin/mkdir /sys/kernel/config/usb_gadget/g/configs/c.1
+ExecStart=/usr/bin/mkdir /sys/kernel/config/usb_gadget/g/configs/c.1/strings/0x409
+ExecStart=/usr/bin/sh -c "facter bootable_coderev                 > /sys/kernel/config/usb_gadget/g/configs/c.1/strings/0x409/configuration"
+# https://raspberrypi.stackexchange.com/questions/63519/power-consumption-of-pi-zero-w since this is the only place I'm doing it rn.
+ExecStart=/usr/bin/sh -c "printf '%%s' '170'                      > /sys/kernel/config/usb_gadget/g/configs/c.1/MaxPower"
+
+# remove config
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/configs/c.1/strings/0x409
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/configs/c.1
+# remove strings
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g/strings/0x409
+# remove gadget
+ExecStop=/usr/bin/rmdir /sys/kernel/config/usb_gadget/g

@@ -1,0 +1,14 @@
+[Unit]
+Description=configure usb serial gadget
+After=usb-gadget.target
+ConditionPathExists=/sys/kernel/config/usb_gadget/g/UDC
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+
+# Link to UDC
+ExecStart=/usr/bin/bash -c "udc=(/sys/class/udc/*) ; echo $${udc[0]##*/} > /sys/kernel/config/usb_gadget/g/UDC"
+
+# Unlink UDC
+ExecStop=/usr/bin/sh -c ": > /sys/kernel/config/usb_gadget/g/UDC"
