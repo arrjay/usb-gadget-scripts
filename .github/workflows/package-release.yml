@@ -15,10 +15,15 @@ jobs:
       image: debian:bookworm
 
     steps:
+      - name: Install Git
+        run: apt-get update && apt-get -y install git
+
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Build Dependencies
-        run: apt-get update && apt-get -y install build-essential debhelper devscripts zip
+        run: apt-get -y install build-essential debhelper devscripts zip
 
       - name: Build Package
         run: make deb
