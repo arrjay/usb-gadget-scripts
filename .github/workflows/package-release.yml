@@ -29,7 +29,7 @@ jobs:
         run: make deb
 
       - name: Prepare Release
-        run: pwd && ls -lR && mkdir /output && mv ../*.deb output && cd /output && zip packages.zip *.deb
+        run: mkdir /output && mv ../*.deb /output && cd /output && zip packages.zip *.deb
 
       - name: Attach Package to Release
         uses: svenstaro/upload-release-action@v2
