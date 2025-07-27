@@ -1,3 +1,5 @@
+*.sw?
+
 debian/changelog
 debian/control
 debian/files

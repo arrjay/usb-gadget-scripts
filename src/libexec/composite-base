@@ -87,10 +87,21 @@ gadget_start () {
 }
 
 gadget_stop () {
+  local gadgetdir="/sys/kernel/config/usb_gadget/${GADGET_TOPLEVEL}"
+
   # remove endpoint config
+  for strid in ${GADGET_LANGUAGES} ; do
+    rmdir "${gadgetdir}/configs/c.1/strings/0x${strid}"
+  done
+  rmdir "${gadgetdir}/configs/c.1"
+
   # remove device strings
+  for strid in ${GADGET_LANGUAGES} ; do
+    rmdir "${gadgetdir}/strings/0x${strid}"
+  done
+
   # remove gadget base
-  :
+  rmdir "${gadgetdir}"
 }
 
 case "$1" in
