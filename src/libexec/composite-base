@@ -62,33 +62,34 @@ gadget_start () {
     # manufacturer
     local lg_mfr='Linux Foundation'
     label="GL_${strid}_MANUF"
-    [[ "${!label}" ]] && lg_mfr="${!label}"
+    [[ "${!label:-}" ]] && lg_mfr="${!label}"
     printf '%s' "${lg_mfr}" > "${strdir}/manufacturer"
 
     # product
     local lg_prod="Multifunction Composite Gadget"
     label="GL_${strid}_PRODUCT"
-    [[ "${!label}" ]] && lg_prod="${!label}"
+    [[ "${!label:-}" ]] && lg_prod="${!label}"
     printf '%s' "${lg_prod}" > "${strdir}/product"
 
     # serial
     local lg_ser="${devser}"
     label="GL_${strid}_SERIAL"
-    [[ "${!label}" ]] && lg_ser="${!label}"
+    [[ "${!label:-}" ]] && lg_ser="${!label}"
     printf '%s' "${lg_ser}" > "${strdir}/serialnumber"
   done
 
   # endpoint configuration...
   mkdir "${gadgetdir}/configs/c.1"
+  printf '%s' "${POWERDRAW}"       > "${gadgetdir}/configs/c.1/MaxPower"
+
   for strid in ${GADGET_LANGUAGES} ; do
     local cstrdir="${gadgetdir}/configs/c.1/strings/0x${strid}"
     mkdir "${cstrdir}"
-    printf '%s' "${POWERDRAW}" > "${cstrdir}/MaxPower"
 
     # a string the *describes* the configuration, as far as I can figure out...
     local lg_descr="A Thing! Running Linux!"
     label="GL_${strid}_CONFIGDESC"
-    [[ "${!label}" ]] && lg_descr="${!label}"
+    [[ "${!label:-}" ]] && lg_descr="${!label}"
     printf '%s' "${lg_descr}" > "${cstrdir}/configuration"
   done
 }
