@@ -10,3 +10,6 @@ Type=oneshot
 RemainAfterExit=true
 ExecStart=PREFIX/libexec/usb-gadget-scripts/function-acm start
 ExecStop=PREFIX/libexec/usb-gadget-scripts/function-acm stop
+
+[Install]
+WantedBy=usb-gadget.target

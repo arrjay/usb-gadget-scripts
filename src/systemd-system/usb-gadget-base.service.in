@@ -11,3 +11,4 @@ ExecStop=PREFIX/libexec/usb-gadget-scripts/composite-base stop
 
 [Install]
 WantedBy=multi-user.target
+WantedBy=usb-gadget.target
