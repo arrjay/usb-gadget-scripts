@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -eu
+
+GADGET_DIR="/sys/kernel/config/usb_gadget/g"
+
+errmsg () {
+  printf '%s\n' "${*}" 1>&2
+}
+
+errdie () {
+  errmsg "${@}"
+  exit 1
+}
+
+start_acm () {
+  mkdir "${GADGET_DIR}/functions/acm.0"
+  ( cd "${GADGET_DIR}/configs/c.1" && ln -s ../../functions/acm.0 . )
+}
+
+stop_acm() {
+  rm "${GADGET_DIR}/configs/c.1/acm.0"
+  rmdir "${GADGET_DIR}/functions/acm.0"
+}
+
+[[ -d "${GADGET_DIR}/configs/c.1" ]] || errdie "gadget/configuration does not exist"
+
+case "$1" in
+  start)
+    start_acm
+  ;;
+  stop)
+    stop_acm
+  ;;
+  *)
+    help
+  ;;
+esac

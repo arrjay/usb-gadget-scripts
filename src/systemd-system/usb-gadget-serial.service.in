@@ -1,0 +1,12 @@
+[Unit]
+Description=configure usb serial gadget
+After=usb-gadget-base.service
+Wants=usb-gadget-base.service
+Requires=usb-gadget-base.service
+ConditionPathIsDirectory=/sys/kernel/config/usb_gadget/g/configs/c.1
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=PREFIX/libexec/usb-gadget-scripts/function-acm start
+ExecStop=PREFIX/libexec/usb-gadget-scripts/function-acm stop
