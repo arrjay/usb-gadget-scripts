@@ -5,6 +5,10 @@
 
 override_dh_auto_install:
 	dh_auto_install -- PREFIX=/usr
+	dh_systemd_enable --name usb-gadget-base
+	dh_systemd_enable --name usb-gadget-serial
+	dh_systemd_enable --name usb-gadget-finalize
+	dh_systemd_start
 
 override_dh_auto_build:
 	true
