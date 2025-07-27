@@ -23,7 +23,7 @@ gadget_unbind () {
   printf '%s' '' > "${GADGET_UDCBIND}"
 }
 
-[[ -d "${GADGET_UDCBIND}" ]] || errdie "UDC bind does not exist for gadget"
+[[ -e "${GADGET_UDCBIND}" ]] || errdie "UDC bind does not exist for gadget"
 
 case "$1" in
   start)
