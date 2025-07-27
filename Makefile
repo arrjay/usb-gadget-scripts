@@ -1,5 +1,5 @@
 PREFIX = /usr/local
-DEFREV = 0.$(shell date +%s)
+DEFREV = 0.0.$(shell date +%s)
 ifeq ($(CODEREV),)
 CODEREV = $(DEFREV)
 endif
