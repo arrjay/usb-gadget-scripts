@@ -6,7 +6,7 @@ endif
 
 install: $(DESTDIR)$(PREFIX)/lib/systemd/system $(DESTDIR)$(PREFIX)/libexec/usb-gadget-scripts build/systemd-system/usb-gadget-base.service build/systemd-system/usb-gadget-finalize.service
 	install -m 0644 build/systemd-system/usb-gadget-base.service $(DESTDIR)$(PREFIX)/lib/systemd/system/usb-gadget-base.service
-	install -m 0644 build/systemd-system/usb-gadget-finalize.service $(DESTDIR)$(PREFIX)/lib/systemd/system/usr-gadget-finalize.service
+	install -m 0644 build/systemd-system/usb-gadget-finalize.service $(DESTDIR)$(PREFIX)/lib/systemd/system/usb-gadget-finalize.service
 	install -m 0755 src/libexec/composite-base $(DESTDIR)$(PREFIX)/libexec/usb-gadget-scripts/composite-base
 	install -m 0755 src/libexec/finalize $(DESTDIR)$(PREFIX)/libexec/usb-gadget-scripts/finalize
 
