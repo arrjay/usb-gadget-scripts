@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -eu
+
+GADGET_UDCBIND='/sys/kernel/config/usb_gadget/g/UDC'
+
+errmsg () {
+  printf '%s\n' "${*}" 1>&2
+}
+
+errdie () {
+  errmsg "${@}"
+  exit 1
+}
+
+gadget_bind () {
+  # get the first controller and bind it
+  local udc=(/sys/class/udc/*)
+  printf '%s' "${udc[0]##*/}" > "${GADGET_UDCBIND}"
+}
+
+gadget_unbind () {
+  printf '%s' '' > "${GADGET_UDCBIND}"
+}
+
+[[ -d "${GADGET_UDCBIND}" ]] || errdie "UDC bind does not exist for gadget"
+
+case "$1" in
+  start)
+    gadget_bind
+  ;;
+  stop)
+    gadget_unbind
+  ;;
+  *)
+    help
+  ;;
+esac
