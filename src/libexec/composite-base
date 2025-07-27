@@ -33,7 +33,7 @@ gadget_start () {
   [[ -d /sys/kernel/config/usb_gadget ]] || errdie "usb_gadget config directory does not exist"
   # _this_ gadget's directory
   local gadgetdir="/sys/kernel/config/usb_gadget/${GADGET_TOPLEVEL}"
-  [[ -d "${gadgetdir}" ]] || errdie "gadget (${GADGET_TOPLEVEL}) already exists"
+  [[ -d "${gadgetdir}" ]] && errdie "gadget (${GADGET_TOPLEVEL}) already exists"
   mkdir "${gadgetdir}"
   # wait a moment for the kernel
   sleep 0.01
@@ -41,6 +41,9 @@ gadget_start () {
   # set up device serial number if we can
   local devser="${DEFAULT_SERIAL}"
   [[ -e /prod/device-tree/serial-number ]] && devser="$(cat /proc/device-tree/serial-number)"
+
+  # scratch variable for indirect lookups
+  local label=''
 
   # vendor/product/device/usb version strings
   printf '%s' '0x1d6b'             > "${gadgetdir}/idVendor"     # Linux Foundation
@@ -57,18 +60,21 @@ gadget_start () {
     mkdir "${strdir}"
 
     # manufacturer
-    local lg_mfr="Linux Foundation"
-    [[ "${!GL_${strid}_MANUF}" ]] && lg_mfr="${!GL_${strid}_MANUF}"
+    local lg_mfr='Linux Foundation'
+    label="GL_${strid}_MANUF"
+    [[ "${!label}" ]] && lg_mfr="${!label}"
     printf '%s' "${lg_mfr}" > "${strdir}/manufacturer"
 
     # product
     local lg_prod="Multifunction Composite Gadget"
-    [[ "${!GL_${strid}_PRODUCT}" ]] && lg_prod="${!GL_${strid}_PRODUCT}"
+    label="GL_${strid}_PRODUCT"
+    [[ "${!label}" ]] && lg_prod="${!label}"
     printf '%s' "${lg_prod}" > "${strdir}/product"
 
     # serial
     local lg_ser="${devser}"
-    [[ "${!GL_${strid}_SERIAL}" ]] && lg_ser="${!GL_${strid}_SERIAL}"
+    label="GL_${strid}_SERIAL"
+    [[ "${!label}" ]] && lg_ser="${!label}"
     printf '%s' "${lg_ser}" > "${strdir}/serialnumber"
   done
 
@@ -81,7 +87,8 @@ gadget_start () {
 
     # a string the *describes* the configuration, as far as I can figure out...
     local lg_descr="A Thing! Running Linux!"
-    [[ "${!GL_${strid}_CONFIGDESC}" ]] && lg_descr="${!GL_${strid}_CONFIGDESC}"
+    label="GL_${strid}_CONFIGDESC"
+    [[ "${!label}" ]] && lg_descr="${!label}"
     printf '%s' "${lg_descr}" > "${cstrdir}/configuration"
   done
 }
@@ -91,13 +98,13 @@ gadget_stop () {
 
   # remove endpoint config
   for strid in ${GADGET_LANGUAGES} ; do
-    rmdir "${gadgetdir}/configs/c.1/strings/0x${strid}"
+    [[ -d "${gadgetdir}/configs/c.1/strings/0x${strid}" ]] && rmdir "${gadgetdir}/configs/c.1/strings/0x${strid}"
   done
-  rmdir "${gadgetdir}/configs/c.1"
+  [[ -d "${gadgetdir}/configs/c.1" ]] && rmdir "${gadgetdir}/configs/c.1"
 
   # remove device strings
   for strid in ${GADGET_LANGUAGES} ; do
-    rmdir "${gadgetdir}/strings/0x${strid}"
+    rmdir "${gadgetdir}/strings/0x${strid}" || :
   done
 
   # remove gadget base
