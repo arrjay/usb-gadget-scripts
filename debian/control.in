@@ -2,7 +2,7 @@ Section: admin
 Priority: optional
 Standard-Version: 4.5.1
 Source: usb-gadget-scripts
-Build-Depends: debhelper-compat (>= 10)
+Build-Depends: debhelper-compat (= 10)
 Maintainer: RJ Bergeron <code@xylate.net>
 
 Package: usb-gadget-scripts
