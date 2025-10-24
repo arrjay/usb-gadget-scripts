@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+set -eu
+
+GADGET_DIR="/sys/kernel/config/usb_gadget/g"
+
+errmsg () {
+  printf '%s\n' "${*}" 1>&2
+}
+
+errdie () {
+  errmsg "${@}"
+  exit 1
+}
+
+start_ms () {
+  mkdir "${GADGET_DIR}/functions/mass_storage.0"
+  echo 1 > "${GADGET_DIR}/functions/mass_storage.0/lun.0/cdrom"
+  echo 1 > "${GADGET_DIR}/functions/mass_storage.0/lun.0/ro"
+  echo 1 > "${GADGET_DIR}/functions/mass_storage.0/lun.0/removable"
+  ( cd "${GADGET_DIR}/configs/c.1" && ln -s ../../functions/mass_storage.0 . )
+}
+
+stop_ms() {
+  rm "${GADGET_DIR}/configs/c.1/mass_storage.0"
+  rmdir "${GADGET_DIR}/functions/mass_storage.0"
+}
+
+[[ -d "${GADGET_DIR}/configs/c.1" ]] || errdie "gadget/configuration does not exist"
+
+case "$1" in
+  start)
+    start_ms
+  ;;
+  stop)
+    stop_ms
+  ;;
+  *)
+    help
+  ;;
+esac
