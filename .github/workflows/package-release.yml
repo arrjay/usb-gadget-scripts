@@ -12,8 +12,13 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
+    strategy:
+      matrix:
+        include:
+          - os: debian:bookworm
+            asset_name: ${{ github.event.repository.name }}-debian-bookworm.zip
+          - os: debian:trixie
+            asset_name: ${{ github.event.repository.name }}-debian-trixie.zip
 
     steps:
       - name: Install Git, configure trusted dir
@@ -37,5 +42,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: /output/packages.zip
-          asset_name: ${{ github.event.repository.name }}-debian-bookworm.zip
+          asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
+
+    container:
+      image: ${{matrix.os}}
